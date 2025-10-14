@@ -1,0 +1,798 @@
+import { Activity, FileText, Link2, Users, CheckCircle2 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Button } from "./ui/button";
+import { organs, type OrganType } from "../App";
+
+interface DashboardProps {
+  onNavigate: (
+    view: "dashboard" | "docs-general" | "docs-organ" | "tickets" | "search"
+  ) => void;
+  onSelectOrgan: (organ: OrganType) => void;
+  caseData?: any;
+}
+
+// Definição dos sistemas/módulos disponíveis
+interface SystemModule {
+  id: string;
+  name: string;
+  description: string;
+  type: "primary" | "integration" | "documentation";
+}
+
+// Matriz de acesso: quais sistemas cada secretaria tem acesso
+// true = disponível, false = desabilitado, 'pending' = aguardando dados
+const accessMatrix: Record<OrganType, Record<string, boolean | "pending">> = {
+  policia: {
+    ocorrencias: true,
+    investigacoes: true,
+    "registros-criminais": "pending", // Aguardando sincronização
+    "solicitar-pericia": "pending", // Aguardando integração POLITEC
+    "solicitar-necropsia": true,
+    "prontuario-vitimas": "pending", // Aguardando dados do hospital
+    "laudos-tecnicos": "pending", // Aguardando laudos
+    "portal-integracao": true,
+    "docs-institucionais": true,
+    "docs-policia": true,
+  },
+  hospital: {
+    prontuario: true,
+    emergencia: true,
+    internacao: "pending", // Sistema em atualização
+    "notificar-iml": true,
+    "solicitar-toxicologia": "pending", // Aguardando integração POLITEC
+    "historico-policial": "pending", // Aguardando dados da polícia
+    "portal-integracao": true,
+    "docs-institucionais": true,
+    "docs-hospital": true,
+  },
+  iml: {
+    necropsia: true,
+    "laudos-periciais": "pending", // Aguardando protocolos
+    identificacao: "pending", // Sistema em desenvolvimento
+    "arquivo-amostras": true,
+    "receber-corpos": true,
+    "solicitar-politec": "pending", // Aguardando integração
+    "casos-policiais": "pending", // Aguardando dados
+    "portal-integracao": true,
+    "docs-institucionais": true,
+    "docs-iml": true,
+  },
+  politec: {
+    "analise-evidencias": "pending", // Laboratório em manutenção
+    balistica: true,
+    documentoscopia: "pending", // Aguardando equipamentos
+    toxicologia: "pending", // Aguardando reagentes
+    "dna-forense": "pending", // Sistema em calibração
+    "casos-policiais": "pending", // Aguardando dados
+    "amostras-iml": "pending", // Aguardando envio
+    "portal-integracao": true,
+    "docs-institucionais": true,
+    "docs-politec": true,
+  },
+};
+
+// Definição de todos os sistemas
+const allSystems: Record<string, SystemModule> = {
+  // Polícia
+  ocorrencias: {
+    id: "ocorrencias",
+    name: "Sistema de Ocorrências",
+    description: "Registro e gestão de boletins",
+    type: "primary",
+  },
+  investigacoes: {
+    id: "investigacoes",
+    name: "Investigações",
+    description: "Acompanhamento de casos",
+    type: "primary",
+  },
+  "registros-criminais": {
+    id: "registros-criminais",
+    name: "Registros Criminais",
+    description: "Consulta e registro criminal",
+    type: "primary",
+  },
+
+  // Hospital
+  prontuario: {
+    id: "prontuario",
+    name: "Prontuário Eletrônico",
+    description: "Histórico médico completo",
+    type: "primary",
+  },
+  emergencia: {
+    id: "emergencia",
+    name: "Gestão de Emergências",
+    description: "Triagem e atendimento urgente",
+    type: "primary",
+  },
+  internacao: {
+    id: "internacao",
+    name: "Gestão de Internações",
+    description: "Controle de leitos e UTIs",
+    type: "primary",
+  },
+
+  // IML
+  necropsia: {
+    id: "necropsia",
+    name: "Sistema de Necropsias",
+    description: "Agendamento e execução",
+    type: "primary",
+  },
+  "laudos-periciais": {
+    id: "laudos-periciais",
+    name: "Laudos Periciais",
+    description: "Elaboração e emissão",
+    type: "primary",
+  },
+  identificacao: {
+    id: "identificacao",
+    name: "Identificação de Corpos",
+    description: "Reconhecimento e identificação",
+    type: "primary",
+  },
+  "arquivo-amostras": {
+    id: "arquivo-amostras",
+    name: "Arquivo de Amostras",
+    description: "Gestão de material biológico",
+    type: "primary",
+  },
+
+  // POLITEC
+  "analise-evidencias": {
+    id: "analise-evidencias",
+    name: "Análise de Evidências",
+    description: "Processamento de materiais",
+    type: "primary",
+  },
+  balistica: {
+    id: "balistica",
+    name: "Balística Forense",
+    description: "Exames de armas e projéteis",
+    type: "primary",
+  },
+  documentoscopia: {
+    id: "documentoscopia",
+    name: "Documentoscopia",
+    description: "Análise de documentos",
+    type: "primary",
+  },
+  toxicologia: {
+    id: "toxicologia",
+    name: "Toxicologia Forense",
+    description: "Análises toxicológicas",
+    type: "primary",
+  },
+  "dna-forense": {
+    id: "dna-forense",
+    name: "DNA Forense",
+    description: "Análises genéticas",
+    type: "primary",
+  },
+
+  // Integrações
+  "solicitar-pericia": {
+    id: "solicitar-pericia",
+    name: "Solicitação de Perícia (POLITEC)",
+    description: "Envio de evidências para análise",
+    type: "integration",
+  },
+  "solicitar-necropsia": {
+    id: "solicitar-necropsia",
+    name: "Solicitação de Necropsia (IML)",
+    description: "Encaminhamento para IML",
+    type: "integration",
+  },
+  "prontuario-vitimas": {
+    id: "prontuario-vitimas",
+    name: "Consulta Prontuário (Hospital)",
+    description: "Acesso a dados de vítimas",
+    type: "integration",
+  },
+  "notificar-iml": {
+    id: "notificar-iml",
+    name: "Notificação de Óbito (IML)",
+    description: "Comunicar casos ao IML",
+    type: "integration",
+  },
+  "solicitar-toxicologia": {
+    id: "solicitar-toxicologia",
+    name: "Análise Toxicológica (POLITEC)",
+    description: "Solicitar exames especializados",
+    type: "integration",
+  },
+  "historico-policial": {
+    id: "historico-policial",
+    name: "Consulta Histórico (Polícia)",
+    description: "Verificar ocorrências",
+    type: "integration",
+  },
+  "receber-corpos": {
+    id: "receber-corpos",
+    name: "Recebimento (Hospital/Polícia)",
+    description: "Registro de entrada de corpos",
+    type: "integration",
+  },
+  "solicitar-politec": {
+    id: "solicitar-politec",
+    name: "Análises Complementares (POLITEC)",
+    description: "Solicitar exames técnicos",
+    type: "integration",
+  },
+  "casos-policiais": {
+    id: "casos-policiais",
+    name: "Casos Policiais (Polícia)",
+    description: "Visualizar investigações",
+    type: "integration",
+  },
+  "amostras-iml": {
+    id: "amostras-iml",
+    name: "Amostras IML",
+    description: "Receber material do IML",
+    type: "integration",
+  },
+  "laudos-tecnicos": {
+    id: "laudos-tecnicos",
+    name: "Laudos Técnicos (POLITEC/IML)",
+    description: "Receber laudos periciais",
+    type: "integration",
+  },
+
+  // Documentação e Portal de Integração
+  "portal-integracao": {
+    id: "portal-integracao",
+    name: "Portal de Integração",
+    description: "Hub de consultas entre órgãos",
+    type: "documentation",
+  },
+  "docs-institucionais": {
+    id: "docs-institucionais",
+    name: "Documentação Institucional",
+    description: "Manuais e procedimentos",
+    type: "documentation",
+  },
+  "docs-policia": {
+    id: "docs-policia",
+    name: "Documentação - Polícia",
+    description: "Protocolos específicos",
+    type: "documentation",
+  },
+  "docs-hospital": {
+    id: "docs-hospital",
+    name: "Documentação - Hospital",
+    description: "Protocolos específicos",
+    type: "documentation",
+  },
+  "docs-iml": {
+    id: "docs-iml",
+    name: "Documentação - IML",
+    description: "Protocolos específicos",
+    type: "documentation",
+  },
+  "docs-politec": {
+    id: "docs-politec",
+    name: "Documentação - POLITEC",
+    description: "Protocolos específicos",
+    type: "documentation",
+  },
+};
+
+// Sistemas por secretaria (ordem de exibição)
+const organSystems: Record<OrganType, string[]> = {
+  policia: [
+    "ocorrencias",
+    "investigacoes",
+    "registros-criminais",
+    "solicitar-pericia",
+    "solicitar-necropsia",
+    "prontuario-vitimas",
+    "laudos-tecnicos",
+    "portal-integracao",
+    "docs-institucionais",
+    "docs-policia",
+  ],
+  hospital: [
+    "prontuario",
+    "emergencia",
+    "internacao",
+    "notificar-iml",
+    "solicitar-toxicologia",
+    "historico-policial",
+    "portal-integracao",
+    "docs-institucionais",
+    "docs-hospital",
+  ],
+  iml: [
+    "necropsia",
+    "laudos-periciais",
+    "identificacao",
+    "arquivo-amostras",
+    "receber-corpos",
+    "solicitar-politec",
+    "casos-policiais",
+    "portal-integracao",
+    "docs-institucionais",
+    "docs-iml",
+  ],
+  politec: [
+    "analise-evidencias",
+    "balistica",
+    "documentoscopia",
+    "toxicologia",
+    "dna-forense",
+    "casos-policiais",
+    "amostras-iml",
+    "portal-integracao",
+    "docs-institucionais",
+    "docs-politec",
+  ],
+};
+
+export default function Dashboard({
+  onNavigate,
+  onSelectOrgan,
+  caseData,
+}: DashboardProps) {
+  // Dados padrão caso não tenha caso selecionado
+  const defaultCaseData = {
+    victimName: "Maria Silva Santos",
+    caseNumber: "BO-2024-001234",
+    incidentDate: "15/01/2024",
+    incidentType: "Homicídio",
+    status: "Em Investigação",
+    assignedOfficer: "Del. João Carlos",
+    priority: "Alta",
+  };
+
+  const currentCaseData = caseData || defaultCaseData;
+
+  const caseStats = [
+    {
+      label: "Documentos do Caso",
+      value: "8",
+      icon: FileText,
+      color: "text-blue-600",
+    },
+    {
+      label: "Integrações Ativas",
+      value: "5",
+      icon: Link2,
+      color: "text-green-600",
+    },
+    {
+      label: "Dias em Andamento",
+      value: "12",
+      icon: Activity,
+      color: "text-orange-600",
+    },
+    {
+      label: "Status Atual",
+      value: currentCaseData.status,
+      icon: Users,
+      color: "text-purple-600",
+    },
+  ];
+
+  const handleSystemClick = (systemId: string, organId: OrganType) => {
+    const access = accessMatrix[organId][systemId];
+    // Verificar se tem acesso (não pode ser false nem 'pending')
+    if (access === true) {
+      console.log(`Acessando sistema: ${systemId} da secretaria: ${organId}`);
+      // Aqui você pode implementar a navegação para o sistema específico
+      if (systemId.startsWith("docs-")) {
+        onSelectOrgan(organId);
+        onNavigate("docs-organ");
+      }
+    } else if (access === "pending") {
+      console.log(`Sistema ${systemId} aguardando dados ou implementação`);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Informações do Caso */}
+      <div>
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-slate-900">
+                Caso: {currentCaseData.caseNumber}
+              </h2>
+              <p className="text-slate-600">
+                Vítima: {currentCaseData.victimName}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                {currentCaseData.priority}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onNavigate("search")}
+              >
+                Trocar Caso
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Dados Principais do Caso */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Informações do Caso</CardTitle>
+            <CardDescription>
+              Detalhes principais da investigação
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-slate-600 text-sm">Tipo de Incidente</p>
+                <p className="text-slate-900 font-medium">
+                  {currentCaseData.incidentType}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-600 text-sm">Data do Incidente</p>
+                <p className="text-slate-900 font-medium">
+                  {currentCaseData.incidentDate}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-600 text-sm">
+                  Investigador Responsável
+                </p>
+                <p className="text-slate-900 font-medium">
+                  {currentCaseData.assignedOfficer}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Estatísticas do Caso */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {caseStats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={index}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-slate-600 text-sm">{stat.label}</p>
+                      <p className="text-slate-900 mt-1">{stat.value}</p>
+                    </div>
+                    <Icon className={`w-8 h-8 ${stat.color}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Secretarias com Matriz de Acesso */}
+      <div>
+        <div className="mb-6">
+          <h2 className="text-slate-900">Documentos e Integrações do Caso</h2>
+          <p className="text-slate-600">
+            Status dos documentos e integrações específicas para este caso
+          </p>
+          <div className="mt-2">
+            <span className="inline-flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+              Documento disponível
+            </span>
+            <span className="inline-flex items-center gap-2 ml-4">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-400 opacity-60"></span>
+              Aguardando processamento
+            </span>
+            <span className="inline-flex items-center gap-2 ml-4">
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+              Não aplicável
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {organs.map((organ) => {
+            const Icon = organ.icon;
+            const systems = organSystems[organ.id];
+
+            return (
+              <Card key={organ.id} className="overflow-hidden">
+                <CardHeader className={`${organ.color} text-white`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-white">{organ.name}</CardTitle>
+                      <CardDescription className="text-white/80">
+                        {organ.description}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    {/* Documentos Principais */}
+                    <div>
+                      <p className="text-slate-900 text-sm mb-3">
+                        Documentos Principais
+                      </p>
+                      <div className="space-y-2">
+                        {systems
+                          .filter(
+                            (sysId) => allSystems[sysId]?.type === "primary"
+                          )
+                          .map((systemId) => {
+                            const system = allSystems[systemId];
+                            const access = accessMatrix[organ.id][systemId];
+                            const hasAccess = access === true;
+                            const isPending = access === "pending";
+
+                            return (
+                              <button
+                                key={systemId}
+                                onClick={() =>
+                                  handleSystemClick(systemId, organ.id)
+                                }
+                                disabled={!hasAccess}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                                  hasAccess
+                                    ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
+                                    : isPending
+                                    ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
+                                    : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-60"
+                                }`}
+                              >
+                                <div
+                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                    hasAccess
+                                      ? "bg-green-500"
+                                      : isPending
+                                      ? "bg-orange-400 opacity-60"
+                                      : "bg-slate-300"
+                                  }`}
+                                ></div>
+                                <div className="flex-1 text-left">
+                                  <p
+                                    className={`text-sm ${
+                                      isPending
+                                        ? "text-slate-600"
+                                        : "text-slate-900"
+                                    }`}
+                                  >
+                                    {system.name}
+                                  </p>
+                                  <p
+                                    className={`text-xs ${
+                                      isPending
+                                        ? "text-slate-500"
+                                        : "text-slate-500"
+                                    }`}
+                                  >
+                                    {isPending
+                                      ? "Aguardando dados..."
+                                      : system.description}
+                                  </p>
+                                </div>
+                                {hasAccess && (
+                                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                )}
+                                {isPending && (
+                                  <div className="w-4 h-4 flex-shrink-0 opacity-40">
+                                    <div className="animate-pulse bg-orange-400 rounded-full w-full h-full"></div>
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Solicitações e Integrações */}
+                    <div>
+                      <p className="text-slate-900 text-sm mb-3 mt-4">
+                        Solicitações e Integrações
+                      </p>
+                      <div className="space-y-2">
+                        {systems
+                          .filter(
+                            (sysId) => allSystems[sysId]?.type === "integration"
+                          )
+                          .map((systemId) => {
+                            const system = allSystems[systemId];
+                            const access = accessMatrix[organ.id][systemId];
+                            const hasAccess = access === true;
+                            const isPending = access === "pending";
+
+                            return (
+                              <button
+                                key={systemId}
+                                onClick={() =>
+                                  handleSystemClick(systemId, organ.id)
+                                }
+                                disabled={!hasAccess}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                                  hasAccess
+                                    ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
+                                    : isPending
+                                    ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
+                                    : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-60"
+                                }`}
+                              >
+                                <div
+                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                    hasAccess
+                                      ? "bg-green-500"
+                                      : isPending
+                                      ? "bg-orange-400 opacity-60"
+                                      : "bg-slate-300"
+                                  }`}
+                                ></div>
+                                <div className="flex-1 text-left">
+                                  <p
+                                    className={`text-sm ${
+                                      isPending
+                                        ? "text-slate-600"
+                                        : "text-slate-900"
+                                    }`}
+                                  >
+                                    {system.name}
+                                  </p>
+                                  <p
+                                    className={`text-xs ${
+                                      isPending
+                                        ? "text-slate-500"
+                                        : "text-slate-500"
+                                    }`}
+                                  >
+                                    {isPending
+                                      ? "Aguardando dados..."
+                                      : system.description}
+                                  </p>
+                                </div>
+                                {hasAccess && (
+                                  <Link2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                )}
+                                {isPending && (
+                                  <div className="w-4 h-4 flex-shrink-0 opacity-40">
+                                    <div className="animate-pulse bg-orange-400 rounded-full w-full h-full"></div>
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Recursos Adicionais */}
+                    <div>
+                      <p className="text-slate-900 text-sm mb-3 mt-4">
+                        Recursos e Documentação
+                      </p>
+                      <div className="space-y-2">
+                        {systems
+                          .filter(
+                            (sysId) =>
+                              allSystems[sysId]?.type === "documentation"
+                          )
+                          .map((systemId) => {
+                            const system = allSystems[systemId];
+                            const access = accessMatrix[organ.id][systemId];
+                            const hasAccess = access === true;
+                            const isPending = access === "pending";
+
+                            return (
+                              <button
+                                key={systemId}
+                                onClick={() =>
+                                  handleSystemClick(systemId, organ.id)
+                                }
+                                disabled={!hasAccess}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                                  hasAccess
+                                    ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
+                                    : isPending
+                                    ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
+                                    : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-60"
+                                }`}
+                              >
+                                <div
+                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                    hasAccess
+                                      ? "bg-green-500"
+                                      : isPending
+                                      ? "bg-orange-400 opacity-60"
+                                      : "bg-slate-300"
+                                  }`}
+                                ></div>
+                                <div className="flex-1 text-left">
+                                  <p
+                                    className={`text-sm ${
+                                      isPending
+                                        ? "text-slate-600"
+                                        : "text-slate-900"
+                                    }`}
+                                  >
+                                    {system.name}
+                                  </p>
+                                  <p
+                                    className={`text-xs ${
+                                      isPending
+                                        ? "text-slate-500"
+                                        : "text-slate-500"
+                                    }`}
+                                  >
+                                    {isPending
+                                      ? "Aguardando dados..."
+                                      : system.description}
+                                  </p>
+                                </div>
+                                {hasAccess && (
+                                  <FileText className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                                )}
+                                {isPending && (
+                                  <div className="w-4 h-4 flex-shrink-0 opacity-40">
+                                    <div className="animate-pulse bg-orange-400 rounded-full w-full h-full"></div>
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Ações do Caso */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ações do Caso</CardTitle>
+          <CardDescription>
+            Ações específicas para este caso de investigação
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex-col"
+              onClick={() => onNavigate("docs-general")}
+            >
+              <FileText className="w-6 h-6 mb-2 text-slate-600" />
+              <span>Relatório do Caso</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex-col"
+              onClick={() => onNavigate("tickets")}
+            >
+              <Link2 className="w-6 h-6 mb-2 text-slate-600" />
+              <span>Solicitações Pendentes</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-4 flex-col">
+              <Link2 className="w-6 h-6 mb-2 text-slate-600" />
+              <span>Timeline do Caso</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
