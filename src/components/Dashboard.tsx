@@ -1,4 +1,12 @@
-import { Activity, FileText, Link2, Users, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import {
+  Activity,
+  FileText,
+  Link2,
+  Users,
+  CheckCircle2,
+  Send,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -7,6 +15,16 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
 import { organs, type OrganType } from "../App";
 
 interface DashboardProps {
@@ -342,6 +360,33 @@ export default function Dashboard({
     },
   ];
 
+  // Estado para envio de dados (POLITEC)
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
+  const [sendContext, setSendContext] = useState<{
+    systemId: string;
+    systemName: string;
+  } | null>(null);
+  const [sendForm, setSendForm] = useState({ protocolo: "", descricao: "" });
+
+  const openSendDialog = (
+    systemId: string,
+    systemName: string,
+    e?: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    if (e) e.stopPropagation();
+    setSendContext({ systemId, systemName });
+    setSendForm({ protocolo: "", descricao: "" });
+    setIsSendDialogOpen(true);
+  };
+
+  const handleSendData = () => {
+    console.log("Enviar dados (POLITEC):", {
+      ...sendForm,
+      system: sendContext,
+    });
+    setIsSendDialogOpen(false);
+  };
+
   const handleSystemClick = (systemId: string, organId: OrganType) => {
     const access = accessMatrix[organId][systemId];
     // Verificar se tem acesso (não pode ser false nem 'pending')
@@ -382,6 +427,48 @@ export default function Dashboard({
               >
                 Trocar Caso
               </Button>
+            </div>
+
+            <div className="mt-1 flex items-center gap-6 text-xs text-slate-700">
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block ring-1 ring-slate-300"
+                  style={{
+                    width: 10,
+                    height: 10,
+                    backgroundColor: "#ef4444",
+                    borderRadius: "9999px",
+                    display: "inline-block",
+                  }}
+                />
+                <span>Alta = 12h</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block ring-1 ring-slate-300"
+                  style={{
+                    width: 10,
+                    height: 10,
+                    backgroundColor: "#f59e0b",
+                    borderRadius: "9999px",
+                    display: "inline-block",
+                  }}
+                />
+                <span>Média = 72h</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block ring-1 ring-slate-300"
+                  style={{
+                    width: 10,
+                    height: 10,
+                    backgroundColor: "#22c55e",
+                    borderRadius: "9999px",
+                    display: "inline-block",
+                  }}
+                />
+                <span>Baixa = +72h</span>
+              </div>
             </div>
           </div>
         </div>
@@ -550,6 +637,21 @@ export default function Dashboard({
                                 </div>
                                 {hasAccess && (
                                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                )}
+                                {organ.id === "iml" && (
+                                  <div className="ml-auto">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={(
+                                        e: React.MouseEvent<HTMLButtonElement>
+                                      ) =>
+                                        openSendDialog(systemId, system.name, e)
+                                      }
+                                    >
+                                      <Send className="w-3.5 h-3.5 mr-1" />
+                                    </Button>
+                                  </div>
                                 )}
                                 {isPending && (
                                   <div className="w-4 h-4 flex-shrink-0 opacity-40">
@@ -723,6 +825,58 @@ export default function Dashboard({
       </div>
 
       {/* Ações do Caso */}
+      {/* Dialogo Enviar Dados (POLITEC) */}
+      <Dialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Enviar Dados {sendContext ? `- ${sendContext.systemName}` : ""}
+            </DialogTitle>
+            <DialogDescription>
+              Preencha as informações para enviar dados referentes à POLITEC.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="protocolo">Protocolo</Label>
+              <Input
+                id="protocolo"
+                value={sendForm.protocolo}
+                onChange={(e) =>
+                  setSendForm({ ...sendForm, protocolo: e.target.value })
+                }
+                placeholder="Ex: POL-2025-000123"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="descricao">Descrição</Label>
+              <Textarea
+                id="descricao"
+                rows={4}
+                value={sendForm.descricao}
+                onChange={(e) =>
+                  setSendForm({ ...sendForm, descricao: e.target.value })
+                }
+                placeholder="Descreva os dados enviados (amostras, laudos, observações)"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="arquivo">Anexo (opcional)</Label>
+              <Input id="arquivo" type="file" />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsSendDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleSendData}>Enviar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader>
           <CardTitle>Ações do Caso</CardTitle>
