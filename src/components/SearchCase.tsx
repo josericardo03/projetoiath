@@ -147,8 +147,8 @@ export default function SearchCase({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-slate-900">Pesquisar Casos</h1>
-          <p className="text-slate-600">
+          <h1 className="text-3xl font-bold text-slate-900">Pesquisar Casos</h1>
+          <p className="text-slate-600 text-lg mt-1">
             Busque por vítima, número do caso ou tipo de incidente
           </p>
         </div>
@@ -158,10 +158,13 @@ export default function SearchCase({
       </div>
 
       {/* Barra de Pesquisa */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Buscar Caso</CardTitle>
-          <CardDescription>
+      <Card className="bg-white border-slate-200">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Search className="w-5 h-5 text-slate-600" />
+            Buscar Caso
+          </CardTitle>
+          <CardDescription className="text-slate-600">
             Digite o nome da vítima, número do BO ou tipo de incidente
           </CardDescription>
         </CardHeader>
@@ -171,13 +174,17 @@ export default function SearchCase({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <Input
                 placeholder="Ex: Maria Silva, BO-2024-001234, Homicídio..."
-                className="pl-10"
+                className="pl-10 h-12 text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
-            <Button onClick={handleSearch} disabled={!searchTerm.trim()}>
+            <Button
+              onClick={handleSearch}
+              disabled={!searchTerm.trim()}
+              className="h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white border-0"
+            >
               <Search className="w-4 h-4 mr-2" />
               Buscar
             </Button>
@@ -309,41 +316,69 @@ export default function SearchCase({
 
       {/* Casos Recentes */}
       {!hasSearched && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Casos Recentes</CardTitle>
-            <CardDescription>Últimos casos abertos no sistema</CardDescription>
+        <Card className="bg-white border-slate-200">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <FileText className="w-5 h-5 text-slate-600" />
+              Casos Recentes
+            </CardTitle>
+            <CardDescription className="text-slate-600">
+              Últimos casos abertos no sistema
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {mockCases.slice(0, 3).map((caseItem) => (
-                <div
+                <Card
                   key={caseItem.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors"
+                  className="border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors bg-white"
                   onClick={() => handleSelectCase(caseItem)}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                      <User className="w-5 h-5 text-slate-600" />
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-slate-900 font-semibold text-lg">
+                            {caseItem.victimName}
+                          </p>
+                          <div className="flex items-center gap-4 mt-1">
+                            <div className="flex items-center gap-1">
+                              <FileText className="w-4 h-4 text-slate-500" />
+                              <span className="text-slate-600 text-sm">
+                                {caseItem.id}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4 text-slate-500" />
+                              <span className="text-slate-600 text-sm">
+                                {caseItem.incidentDate}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          className={`${getPriorityColor(
+                            caseItem.priority
+                          )} text-sm px-3 py-1`}
+                        >
+                          {caseItem.priority}
+                        </Badge>
+                        <Badge
+                          className={`${getStatusColor(
+                            caseItem.status
+                          )} text-sm px-3 py-1`}
+                        >
+                          {caseItem.status}
+                        </Badge>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-slate-900 font-medium">
-                        {caseItem.victimName}
-                      </p>
-                      <p className="text-slate-600 text-sm">
-                        {caseItem.id} • {caseItem.incidentDate}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getPriorityColor(caseItem.priority)}>
-                      {caseItem.priority}
-                    </Badge>
-                    <Badge className={getStatusColor(caseItem.status)}>
-                      {caseItem.status}
-                    </Badge>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </CardContent>

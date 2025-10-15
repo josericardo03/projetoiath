@@ -330,28 +330,160 @@ export default function TimelineCase({
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <title>Relatório do Caso ${caseNumber}</title>
           <style>
-            body { font-family: Arial, Helvetica, sans-serif; color: #0f172a; margin: 24px; }
-            h1 { font-size: 22px; margin: 0 0 8px; }
-            h2 { font-size: 16px; margin: 24px 0 8px; }
-            .muted { color: #475569; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-            .section { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
-            .kv { display: grid; grid-template-columns: 220px 1fr; gap: 8px; margin: 4px 0; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #e2e8f0; padding: 8px; font-size: 12px; vertical-align: top; }
-            th { background: #f8fafc; text-align: left; }
-            .footer { margin-top: 24px; font-size: 12px; color: #64748b; }
-            @media print { .no-print { display: none; } }
+            * { box-sizing: border-box; }
+            body { 
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+              color: #1e293b; 
+              margin: 0; 
+              padding: 20px; 
+              background: #f8fafc;
+              line-height: 1.6;
+            }
+            .container {
+              max-width: 1000px;
+              margin: 0 auto;
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+              overflow: hidden;
+            }
+            .header {
+              background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+              color: white;
+              padding: 30px;
+              text-align: center;
+            }
+            .header h1 { 
+              font-size: 28px; 
+              margin: 0 0 8px; 
+              font-weight: 700;
+            }
+            .header .subtitle { 
+              font-size: 14px; 
+              opacity: 0.9; 
+              margin: 0;
+            }
+            .content { padding: 30px; }
+            h2 { 
+              font-size: 18px; 
+              margin: 30px 0 15px; 
+              color: #1e40af;
+              font-weight: 600;
+              border-bottom: 2px solid #e2e8f0;
+              padding-bottom: 8px;
+            }
+            h2:first-of-type { margin-top: 0; }
+            .muted { 
+              color: #64748b; 
+              font-size: 14px;
+              margin-bottom: 20px;
+            }
+            .grid { 
+              display: grid; 
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+              gap: 20px; 
+              margin: 20px 0;
+            }
+            .section { 
+              border: 1px solid #e2e8f0; 
+              border-radius: 8px; 
+              padding: 20px; 
+              background: #f8fafc;
+            }
+            .kv { 
+              display: grid; 
+              grid-template-columns: 180px 1fr; 
+              gap: 12px; 
+              margin: 8px 0; 
+              padding: 8px 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .kv:last-child { border-bottom: none; }
+            .kv div:first-child { 
+              font-weight: 600; 
+              color: #475569; 
+              font-size: 14px;
+            }
+            .kv div:last-child { 
+              color: #1e293b; 
+              font-size: 14px;
+            }
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
+              margin: 20px 0;
+              background: white;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+            th, td { 
+              border: 1px solid #e2e8f0; 
+              padding: 12px; 
+              font-size: 13px; 
+              vertical-align: top; 
+              text-align: left;
+            }
+            th { 
+              background: #1e40af; 
+              color: white; 
+              font-weight: 600;
+              text-transform: uppercase;
+              font-size: 12px;
+              letter-spacing: 0.5px;
+            }
+            tr:nth-child(even) { background: #f8fafc; }
+            tr:hover { background: #e0f2fe; }
+            .footer { 
+              margin-top: 40px; 
+              padding: 20px;
+              background: #f8fafc;
+              border-top: 1px solid #e2e8f0;
+              font-size: 12px; 
+              color: #64748b; 
+              text-align: center;
+            }
+            .print-button {
+              position: fixed;
+              top: 20px;
+              right: 20px;
+              background: #1e40af;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              z-index: 1000;
+            }
+            .print-button:hover {
+              background: #1d4ed8;
+              transform: translateY(-1px);
+            }
+            @media print { 
+              .no-print { display: none; }
+              body { background: white; padding: 0; }
+              .container { box-shadow: none; border-radius: 0; }
+              .print-button { display: none; }
+            }
           </style>
         </head>
         <body>
-          <div class="no-print" style="display:flex; gap:8px; margin-bottom:16px;">
-            <button onclick="window.print()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;background:#0ea5e9;color:white;cursor:pointer;">Imprimir / Salvar como PDF</button>
-          </div>
-          <h1>Relatório do Caso ${caseNumber}</h1>
-          <div class="muted">Gerado em ${new Date().toLocaleString(
-            "pt-BR"
-          )}</div>
+          <button class="print-button no-print" onclick="window.print()">
+            📄 Imprimir / Salvar PDF
+          </button>
+          
+          <div class="container">
+            <div class="header">
+              <h1>Relatório do Caso ${caseNumber}</h1>
+              <p class="subtitle">Sistema Integrado de Gestão de Casos</p>
+            </div>
+            
+            <div class="content">
+              <div class="muted">📅 Gerado em ${new Date().toLocaleString(
+                "pt-BR"
+              )}</div>
 
           <div class="section" style="margin-top:16px;">
             <h2>Resumo do Caso</h2>
@@ -452,7 +584,14 @@ export default function TimelineCase({
             </table>
           </div>
 
-          <div class="footer">Este documento foi gerado automaticamente pelo sistema. Utilize "Imprimir" para salvar como PDF.</div>
+              <div class="footer">
+                <p>📋 Este documento foi gerado automaticamente pelo Sistema Integrado de Gestão de Casos</p>
+                <p>🕒 Última atualização: ${new Date().toLocaleString(
+                  "pt-BR"
+                )}</p>
+              </div>
+            </div>
+          </div>
         </body>
       </html>
     `;
