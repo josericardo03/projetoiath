@@ -5,7 +5,7 @@ import {
   Link2,
   Users,
   CheckCircle2,
-  Send,
+  ChevronRight,
 } from "lucide-react";
 import {
   Card,
@@ -388,6 +388,13 @@ export default function Dashboard({
   };
 
   const handleSystemClick = (systemId: string, organId: OrganType) => {
+    // Se for POLITEC, sempre abrir diálogo de envio
+    if (organId === "iml") {
+      const system = allSystems[systemId];
+      openSendDialog(systemId, system?.name || "Sistema");
+      return;
+    }
+
     const access = accessMatrix[organId][systemId];
     // Verificar se tem acesso (não pode ser false nem 'pending')
     if (access === true) {
@@ -407,17 +414,16 @@ export default function Dashboard({
       {/* Informações do Caso */}
       <div>
         <div className="mb-6">
+          {/* Título e ações */}
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-slate-900">
-                Caso: {currentCaseData.caseNumber}
-              </h2>
-              <p className="text-slate-600">
+            <h2 className="text-slate-900 text-2xl font-semibold">
+              Caso:{" "}
+              <span className="text-slate-800 font-medium">
                 Vítima: {currentCaseData.victimName}
-              </p>
-            </div>
+              </span>
+            </h2>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-semibold">
                 {currentCaseData.priority}
               </span>
               <Button
@@ -428,104 +434,131 @@ export default function Dashboard({
                 Trocar Caso
               </Button>
             </div>
+          </div>
 
-            <div className="mt-1 flex items-center gap-6 text-xs text-slate-700">
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-block ring-1 ring-slate-300"
-                  style={{
-                    width: 10,
-                    height: 10,
-                    backgroundColor: "#ef4444",
-                    borderRadius: "9999px",
-                    display: "inline-block",
-                  }}
-                />
-                <span>Alta = 12h</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-block ring-1 ring-slate-300"
-                  style={{
-                    width: 10,
-                    height: 10,
-                    backgroundColor: "#f59e0b",
-                    borderRadius: "9999px",
-                    display: "inline-block",
-                  }}
-                />
-                <span>Média = 72h</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-block ring-1 ring-slate-300"
-                  style={{
-                    width: 10,
-                    height: 10,
-                    backgroundColor: "#22c55e",
-                    borderRadius: "9999px",
-                    display: "inline-block",
-                  }}
-                />
-                <span>Baixa = +72h</span>
-              </div>
+          {/* Legenda de prioridades */}
+          <div className="mt-2 flex items-center gap-6 text-xs text-slate-700">
+            <div className="flex items-center gap-2">
+              <span
+                className="inline-block ring-1 ring-slate-300"
+                style={{
+                  width: 10,
+                  height: 10,
+                  backgroundColor: "#ef4444",
+                  borderRadius: "9999px",
+                  display: "inline-block",
+                }}
+              />
+              <span>Alta = 12h</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className="inline-block ring-1 ring-slate-300"
+                style={{
+                  width: 10,
+                  height: 10,
+                  backgroundColor: "#f59e0b",
+                  borderRadius: "9999px",
+                  display: "inline-block",
+                }}
+              />
+              <span>Média = 72h</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className="inline-block ring-1 ring-slate-300"
+                style={{
+                  width: 10,
+                  height: 10,
+                  backgroundColor: "#22c55e",
+                  borderRadius: "9999px",
+                  display: "inline-block",
+                }}
+              />
+              <span>Baixa = +72h</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Dados Principais do Caso */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Informações do Caso</CardTitle>
-            <CardDescription>
-              Detalhes principais da investigação
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="text-slate-600 text-sm">Tipo de Incidente</p>
-                <p className="text-slate-900 font-medium">
-                  {currentCaseData.incidentType}
-                </p>
-              </div>
-              <div>
-                <p className="text-slate-600 text-sm">Data do Incidente</p>
-                <p className="text-slate-900 font-medium">
-                  {currentCaseData.incidentDate}
-                </p>
-              </div>
-              <div>
-                <p className="text-slate-600 text-sm">
-                  Investigador Responsável
-                </p>
-                <p className="text-slate-900 font-medium">
-                  {currentCaseData.assignedOfficer}
-                </p>
-              </div>
+      {/* Dados Principais do Caso */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">
+            Informações do Caso
+          </CardTitle>
+          <CardDescription className="text-sm">
+            Detalhes principais da investigação
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-slate-600 text-sm">Tipo de Incidente</p>
+              <p className="text-slate-900 font-medium">
+                {currentCaseData.incidentType}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-slate-600 text-sm">Data do Incidente</p>
+              <p className="text-slate-900 font-medium">
+                {currentCaseData.incidentDate}
+              </p>
+            </div>
+            <div>
+              <p className="text-slate-600 text-sm">Investigador Responsável</p>
+              <p className="text-slate-900 font-medium">
+                {currentCaseData.assignedOfficer}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Estatísticas do Caso */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {caseStats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-slate-600 text-sm">{stat.label}</p>
-                      <p className="text-slate-900 mt-1">{stat.value}</p>
-                    </div>
-                    <Icon className={`w-8 h-8 ${stat.color}`} />
+      {/* Estatísticas do Caso */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {caseStats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index} className="border-slate-200 bg-white">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      stat.color === "text-blue-600"
+                        ? "bg-blue-100"
+                        : stat.color === "text-green-600"
+                        ? "bg-green-100"
+                        : stat.color === "text-orange-600"
+                        ? "bg-orange-100"
+                        : "bg-purple-100"
+                    }`}
+                  >
+                    <Icon
+                      className={`w-6 h-6 ${
+                        stat.color === "text-blue-600"
+                          ? "text-blue-600"
+                          : stat.color === "text-green-600"
+                          ? "text-green-600"
+                          : stat.color === "text-orange-600"
+                          ? "text-orange-600"
+                          : "text-purple-600"
+                      }`}
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  <div className="flex-1">
+                    <p className="text-slate-600 text-sm font-medium">
+                      {stat.label}
+                    </p>
+                    <p className="text-slate-900 text-2xl font-bold mt-1">
+                      {stat.value}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Secretarias com Matriz de Acesso */}
@@ -560,22 +593,24 @@ export default function Dashboard({
               <Card key={organ.id} className="overflow-hidden">
                 <CardHeader className={`${organ.color} text-white`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-white" />
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-white">{organ.name}</CardTitle>
-                      <CardDescription className="text-white/80">
+                      <CardTitle className="text-white text-lg">
+                        {organ.name}
+                      </CardTitle>
+                      <CardDescription className="text-white/80 text-sm">
                         {organ.description}
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-4">
                   <div className="space-y-3">
                     {/* Documentos Principais */}
                     <div>
-                      <p className="text-slate-900 text-sm mb-3">
+                      <p className="text-slate-900 text-sm font-semibold mb-3">
                         Documentos Principais
                       </p>
                       <div className="space-y-2">
@@ -595,27 +630,28 @@ export default function Dashboard({
                                 onClick={() =>
                                   handleSystemClick(systemId, organ.id)
                                 }
-                                disabled={!hasAccess}
+                                disabled={!hasAccess && organ.id !== "iml"}
                                 className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
                                   hasAccess
                                     ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
-                                    : isPending
-                                    ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
-                                    : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-60"
+                                    : organ.id === "iml"
+                                    ? "border-slate-100 bg-white opacity-60 cursor-pointer hover:border-slate-200"
+                                    : "border-slate-100 bg-white opacity-60"
                                 }`}
                               >
-                                <div
-                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                                    hasAccess
-                                      ? "bg-green-500"
-                                      : isPending
-                                      ? "bg-orange-400 opacity-60"
-                                      : "bg-slate-300"
-                                  }`}
-                                ></div>
+                                {/* Status dot (left) */}
+                                <span
+                                  className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                                  style={{
+                                    backgroundColor: hasAccess
+                                      ? "#22c55e"
+                                      : "#cbd5e1",
+                                  }}
+                                />
+                                {/* System name and description (middle) */}
                                 <div className="flex-1 text-left">
                                   <p
-                                    className={`text-sm ${
+                                    className={`text-sm font-bold ${
                                       isPending
                                         ? "text-slate-600"
                                         : "text-slate-900"
@@ -623,126 +659,112 @@ export default function Dashboard({
                                   >
                                     {system.name}
                                   </p>
-                                  <p
-                                    className={`text-xs ${
-                                      isPending
-                                        ? "text-slate-500"
-                                        : "text-slate-500"
-                                    }`}
-                                  >
+                                  <p className="text-xs text-slate-500">
                                     {isPending
                                       ? "Aguardando dados..."
                                       : system.description}
                                   </p>
                                 </div>
+                                {/* Icons (right) */}
                                 {hasAccess && (
-                                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                  <div className="flex items-center gap-2 ml-auto">
+                                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                    {organ.id === "iml" && (
+                                      <ChevronRight className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                                    )}
+                                  </div>
                                 )}
-                                {organ.id === "iml" && (
-                                  <div className="ml-auto">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={(
-                                        e: React.MouseEvent<HTMLButtonElement>
-                                      ) =>
-                                        openSendDialog(systemId, system.name, e)
-                                      }
+                                {!hasAccess && organ.id === "iml" && (
+                                  <ChevronRight className="w-4 h-4 text-slate-600 flex-shrink-0 ml-auto" />
+                                )}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Solicitações e Integrações (somente POLITEC) */}
+                    {organ.id === "iml" && (
+                      <div>
+                        <p className="text-slate-900 text-sm font-semibold mb-3 mt-4">
+                          Solicitações e Integrações
+                        </p>
+                        <div className="space-y-2">
+                          {systems
+                            .filter(
+                              (sysId) =>
+                                allSystems[sysId]?.type === "integration"
+                            )
+                            .map((systemId) => {
+                              const system = allSystems[systemId];
+                              const access = accessMatrix[organ.id][systemId];
+                              const hasAccess = access === true;
+                              const isPending = access === "pending";
+
+                              return (
+                                <button
+                                  key={systemId}
+                                  onClick={() =>
+                                    handleSystemClick(systemId, organ.id)
+                                  }
+                                  disabled={!hasAccess && organ.id !== "iml"}
+                                  className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                                    hasAccess
+                                      ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
+                                      : isPending
+                                      ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
+                                      : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-60"
+                                  }`}
+                                >
+                                  <div
+                                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                      hasAccess
+                                        ? "bg-green-500"
+                                        : isPending
+                                        ? "bg-orange-400 opacity-60"
+                                        : "bg-slate-300"
+                                    }`}
+                                  ></div>
+                                  <div className="flex-1 text-left">
+                                    <p
+                                      className={`text-sm ${
+                                        isPending
+                                          ? "text-slate-600"
+                                          : "text-slate-900"
+                                      }`}
                                     >
-                                      <Send className="w-3.5 h-3.5 mr-1" />
-                                    </Button>
+                                      {system.name}
+                                    </p>
+                                    <p
+                                      className={`text-xs ${
+                                        isPending
+                                          ? "text-slate-500"
+                                          : "text-slate-500"
+                                      }`}
+                                    >
+                                      {isPending
+                                        ? "Aguardando dados..."
+                                        : system.description}
+                                    </p>
                                   </div>
-                                )}
-                                {isPending && (
-                                  <div className="w-4 h-4 flex-shrink-0 opacity-40">
-                                    <div className="animate-pulse bg-orange-400 rounded-full w-full h-full"></div>
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
+                                  {hasAccess && (
+                                    <Link2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                  )}
+                                  {isPending && (
+                                    <div className="w-4 h-4 flex-shrink-0 opacity-40">
+                                      <div className="animate-pulse bg-orange-400 rounded-full w-full h-full"></div>
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Solicitações e Integrações */}
-                    <div>
-                      <p className="text-slate-900 text-sm mb-3 mt-4">
-                        Solicitações e Integrações
-                      </p>
-                      <div className="space-y-2">
-                        {systems
-                          .filter(
-                            (sysId) => allSystems[sysId]?.type === "integration"
-                          )
-                          .map((systemId) => {
-                            const system = allSystems[systemId];
-                            const access = accessMatrix[organ.id][systemId];
-                            const hasAccess = access === true;
-                            const isPending = access === "pending";
-
-                            return (
-                              <button
-                                key={systemId}
-                                onClick={() =>
-                                  handleSystemClick(systemId, organ.id)
-                                }
-                                disabled={!hasAccess}
-                                className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                                  hasAccess
-                                    ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
-                                    : isPending
-                                    ? "border-slate-200 bg-slate-50 cursor-not-allowed opacity-70"
-                                    : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-60"
-                                }`}
-                              >
-                                <div
-                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                                    hasAccess
-                                      ? "bg-green-500"
-                                      : isPending
-                                      ? "bg-orange-400 opacity-60"
-                                      : "bg-slate-300"
-                                  }`}
-                                ></div>
-                                <div className="flex-1 text-left">
-                                  <p
-                                    className={`text-sm ${
-                                      isPending
-                                        ? "text-slate-600"
-                                        : "text-slate-900"
-                                    }`}
-                                  >
-                                    {system.name}
-                                  </p>
-                                  <p
-                                    className={`text-xs ${
-                                      isPending
-                                        ? "text-slate-500"
-                                        : "text-slate-500"
-                                    }`}
-                                  >
-                                    {isPending
-                                      ? "Aguardando dados..."
-                                      : system.description}
-                                  </p>
-                                </div>
-                                {hasAccess && (
-                                  <Link2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                                )}
-                                {isPending && (
-                                  <div className="w-4 h-4 flex-shrink-0 opacity-40">
-                                    <div className="animate-pulse bg-orange-400 rounded-full w-full h-full"></div>
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                      </div>
-                    </div>
+                    )}
 
                     {/* Recursos Adicionais */}
                     <div>
-                      <p className="text-slate-900 text-sm mb-3 mt-4">
+                      <p className="text-slate-900 text-sm font-semibold mb-3 mt-4">
                         Recursos e Documentação
                       </p>
                       <div className="space-y-2">
@@ -763,7 +785,7 @@ export default function Dashboard({
                                 onClick={() =>
                                   handleSystemClick(systemId, organ.id)
                                 }
-                                disabled={!hasAccess}
+                                disabled={!hasAccess && organ.id !== "iml"}
                                 className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
                                   hasAccess
                                     ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm cursor-pointer"
