@@ -11,7 +11,13 @@ import { organs, type OrganType } from "../App";
 
 interface DashboardProps {
   onNavigate: (
-    view: "dashboard" | "docs-general" | "docs-organ" | "tickets" | "search"
+    view:
+      | "dashboard"
+      | "docs-general"
+      | "docs-organ"
+      | "tickets"
+      | "search"
+      | "timeline"
   ) => void;
   onSelectOrgan: (organ: OrganType) => void;
   caseData?: any;
@@ -32,8 +38,7 @@ const accessMatrix: Record<OrganType, Record<string, boolean | "pending">> = {
     ocorrencias: true,
     investigacoes: true,
     "registros-criminais": "pending", // Aguardando sincronização
-    "solicitar-pericia": "pending", // Aguardando integração POLITEC
-    "solicitar-necropsia": true,
+    "solicitar-pericia": true,
     "prontuario-vitimas": "pending", // Aguardando dados do hospital
     "laudos-tecnicos": "pending", // Aguardando laudos
     "portal-integracao": true,
@@ -45,7 +50,7 @@ const accessMatrix: Record<OrganType, Record<string, boolean | "pending">> = {
     emergencia: true,
     internacao: "pending", // Sistema em atualização
     "notificar-iml": true,
-    "solicitar-toxicologia": "pending", // Aguardando integração POLITEC
+    "solicitar-analises": true,
     "historico-policial": "pending", // Aguardando dados da polícia
     "portal-integracao": true,
     "docs-institucionais": true,
@@ -57,23 +62,15 @@ const accessMatrix: Record<OrganType, Record<string, boolean | "pending">> = {
     identificacao: "pending", // Sistema em desenvolvimento
     "arquivo-amostras": true,
     "receber-corpos": true,
-    "solicitar-politec": "pending", // Aguardando integração
-    "casos-policiais": "pending", // Aguardando dados
-    "portal-integracao": true,
-    "docs-institucionais": true,
-    "docs-iml": true,
-  },
-  politec: {
     "analise-evidencias": "pending", // Laboratório em manutenção
     balistica: true,
     documentoscopia: "pending", // Aguardando equipamentos
     toxicologia: "pending", // Aguardando reagentes
     "dna-forense": "pending", // Sistema em calibração
     "casos-policiais": "pending", // Aguardando dados
-    "amostras-iml": "pending", // Aguardando envio
     "portal-integracao": true,
     "docs-institucionais": true,
-    "docs-politec": true,
+    "docs-iml": true,
   },
 };
 
@@ -119,7 +116,7 @@ const allSystems: Record<string, SystemModule> = {
     type: "primary",
   },
 
-  // IML
+  // IML/POLITEC
   necropsia: {
     id: "necropsia",
     name: "Sistema de Necropsias",
@@ -144,8 +141,6 @@ const allSystems: Record<string, SystemModule> = {
     description: "Gestão de material biológico",
     type: "primary",
   },
-
-  // POLITEC
   "analise-evidencias": {
     id: "analise-evidencias",
     name: "Análise de Evidências",
@@ -180,14 +175,8 @@ const allSystems: Record<string, SystemModule> = {
   // Integrações
   "solicitar-pericia": {
     id: "solicitar-pericia",
-    name: "Solicitação de Perícia (POLITEC)",
-    description: "Envio de evidências para análise",
-    type: "integration",
-  },
-  "solicitar-necropsia": {
-    id: "solicitar-necropsia",
-    name: "Solicitação de Necropsia (IML)",
-    description: "Encaminhamento para IML",
+    name: "Solicitação de Perícia",
+    description: "Envio de evidências para análise pericial",
     type: "integration",
   },
   "prontuario-vitimas": {
@@ -198,14 +187,14 @@ const allSystems: Record<string, SystemModule> = {
   },
   "notificar-iml": {
     id: "notificar-iml",
-    name: "Notificação de Óbito (IML)",
-    description: "Comunicar casos ao IML",
+    name: "Notificação de Óbito",
+    description: "Comunicar casos à POLITEC",
     type: "integration",
   },
-  "solicitar-toxicologia": {
-    id: "solicitar-toxicologia",
-    name: "Análise Toxicológica (POLITEC)",
-    description: "Solicitar exames especializados",
+  "solicitar-analises": {
+    id: "solicitar-analises",
+    name: "Análises Especializadas",
+    description: "Solicitar exames técnicos e laboratoriais",
     type: "integration",
   },
   "historico-policial": {
@@ -220,28 +209,16 @@ const allSystems: Record<string, SystemModule> = {
     description: "Registro de entrada de corpos",
     type: "integration",
   },
-  "solicitar-politec": {
-    id: "solicitar-politec",
-    name: "Análises Complementares (POLITEC)",
-    description: "Solicitar exames técnicos",
-    type: "integration",
-  },
   "casos-policiais": {
     id: "casos-policiais",
     name: "Casos Policiais (Polícia)",
     description: "Visualizar investigações",
     type: "integration",
   },
-  "amostras-iml": {
-    id: "amostras-iml",
-    name: "Amostras IML",
-    description: "Receber material do IML",
-    type: "integration",
-  },
   "laudos-tecnicos": {
     id: "laudos-tecnicos",
-    name: "Laudos Técnicos (POLITEC/IML)",
-    description: "Receber laudos periciais",
+    name: "Laudos Técnicos",
+    description: "Receber laudos periciais e técnicos",
     type: "integration",
   },
 
@@ -272,14 +249,8 @@ const allSystems: Record<string, SystemModule> = {
   },
   "docs-iml": {
     id: "docs-iml",
-    name: "Documentação - IML",
-    description: "Protocolos específicos",
-    type: "documentation",
-  },
-  "docs-politec": {
-    id: "docs-politec",
     name: "Documentação - POLITEC",
-    description: "Protocolos específicos",
+    description: "Protocolos e procedimentos periciais",
     type: "documentation",
   },
 };
@@ -291,7 +262,6 @@ const organSystems: Record<OrganType, string[]> = {
     "investigacoes",
     "registros-criminais",
     "solicitar-pericia",
-    "solicitar-necropsia",
     "prontuario-vitimas",
     "laudos-tecnicos",
     "portal-integracao",
@@ -303,7 +273,7 @@ const organSystems: Record<OrganType, string[]> = {
     "emergencia",
     "internacao",
     "notificar-iml",
-    "solicitar-toxicologia",
+    "solicitar-analises",
     "historico-policial",
     "portal-integracao",
     "docs-institucionais",
@@ -314,24 +284,16 @@ const organSystems: Record<OrganType, string[]> = {
     "laudos-periciais",
     "identificacao",
     "arquivo-amostras",
-    "receber-corpos",
-    "solicitar-politec",
-    "casos-policiais",
-    "portal-integracao",
-    "docs-institucionais",
-    "docs-iml",
-  ],
-  politec: [
     "analise-evidencias",
     "balistica",
     "documentoscopia",
     "toxicologia",
     "dna-forense",
+    "receber-corpos",
     "casos-policiais",
-    "amostras-iml",
     "portal-integracao",
     "docs-institucionais",
-    "docs-politec",
+    "docs-iml",
   ],
 };
 
@@ -786,7 +748,11 @@ export default function Dashboard({
               <Link2 className="w-6 h-6 mb-2 text-slate-600" />
               <span>Solicitações Pendentes</span>
             </Button>
-            <Button variant="outline" className="h-auto py-4 flex-col">
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex-col"
+              onClick={() => onNavigate("timeline")}
+            >
               <Link2 className="w-6 h-6 mb-2 text-slate-600" />
               <span>Timeline do Caso</span>
             </Button>

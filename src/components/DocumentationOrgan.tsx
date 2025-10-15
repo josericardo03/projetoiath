@@ -35,7 +35,7 @@ interface DocumentationOrganProps {
 const organDocs: Record<OrganType, any> = {
   policia: {
     overview:
-      "Sistema de gerenciamento de ocorrências policiais, boletins e investigações. Integrado com IML e POLITEC para agilizar perícias e laudos técnicos.",
+      "Sistema de gerenciamento de ocorrências policiais, boletins e investigações. Integrado com POLITEC para agilizar perícias e laudos técnicos.",
     modules: [
       {
         name: "Boletim de Ocorrência",
@@ -47,7 +47,7 @@ const organDocs: Record<OrganType, any> = {
       },
       {
         name: "Solicitações de Perícia",
-        description: "Integração com POLITEC e IML",
+        description: "Integração com POLITEC",
       },
       {
         name: "Registros Criminais",
@@ -55,9 +55,8 @@ const organDocs: Record<OrganType, any> = {
       },
     ],
     integrations: [
-      { system: "IML", type: "Solicitação de necropsia e laudos" },
-      { system: "POLITEC", type: "Análise de evidências" },
-      { system: "Hospital", type: "Atendimento de vítimas" },
+      { system: "POLITEC", type: "Solicitação de perícias e laudos" },
+      { system: "Hospital Regional", type: "Atendimento de vítimas" },
     ],
     faqs: [
       {
@@ -66,17 +65,17 @@ const organDocs: Record<OrganType, any> = {
       },
       {
         q: "Como solicitar uma perícia?",
-        a: 'No sistema de investigações, selecione o caso e clique em "Solicitar Perícia". Escolha o tipo (IML ou POLITEC) e preencha os detalhes.',
+        a: 'No sistema de investigações, selecione o caso e clique em "Solicitar Perícia". Especifique o tipo de análise necessária e preencha os detalhes.',
       },
       {
         q: "Qual o prazo para receber laudos?",
-        a: "Laudos do IML: 5-7 dias úteis. Laudos da POLITEC: 3-5 dias úteis, dependendo da complexidade.",
+        a: "Laudos periciais levam de 3 a 7 dias úteis dependendo do tipo de análise e complexidade do caso.",
       },
     ],
   },
   hospital: {
     overview:
-      "Sistema hospitalar integrado para gerenciamento de pacientes, atendimentos de emergência e transferências. Conectado ao IML para casos de óbito e à Polícia para vítimas de crimes.",
+      "Sistema hospitalar integrado para gerenciamento de pacientes, atendimentos de emergência e transferências. Conectado à POLITEC para casos de óbito e perícias, e à Polícia para vítimas de crimes.",
     modules: [
       {
         name: "Prontuário Eletrônico",
@@ -90,9 +89,8 @@ const organDocs: Record<OrganType, any> = {
       },
     ],
     integrations: [
-      { system: "IML", type: "Notificação de óbitos e transferências" },
-      { system: "Polícia", type: "Comunicação de casos criminais" },
-      { system: "POLITEC", type: "Análises toxicológicas" },
+      { system: "POLITEC", type: "Notificação de óbitos e análises" },
+      { system: "Polícia Civil", type: "Comunicação de casos criminais" },
     ],
     faqs: [
       {
@@ -100,18 +98,18 @@ const organDocs: Record<OrganType, any> = {
         a: "Utilize o módulo de Emergência, faça a triagem com classificação de risco e registre no sistema imediatamente.",
       },
       {
-        q: "Quando notificar o IML?",
+        q: "Quando notificar a POLITEC?",
         a: "Em casos de morte suspeita, violenta ou sem causa aparente. A notificação deve ser feita em até 2 horas.",
       },
       {
         q: "Como solicitar análise toxicológica?",
-        a: 'Pelo prontuário do paciente, acesse "Exames Especiais" e selecione "Análise Toxicológica POLITEC".',
+        a: 'Pelo prontuário do paciente, acesse "Exames Especiais" e selecione "Análise Toxicológica".',
       },
     ],
   },
   iml: {
     overview:
-      "Instituto Médico Legal responsável por necropsias, exames cadavéricos e laudos periciais. Principal interface entre Polícia, Hospital e sistema de justiça.",
+      "Perícia Técnica Científica responsável por necropsias, exames cadavéricos, laudos periciais e análises forenses especializadas. Principal interface entre Polícia, Hospital e sistema de justiça.",
     modules: [
       {
         name: "Necropsias",
@@ -119,47 +117,28 @@ const organDocs: Record<OrganType, any> = {
       },
       {
         name: "Laudos Periciais",
-        description: "Elaboração e emissão de laudos",
+        description: "Elaboração e emissão de laudos médico-legais",
       },
       {
         name: "Identificação",
         description: "Identificação de corpos e vítimas",
       },
-      { name: "Arquivo", description: "Gestão de documentação e amostras" },
-    ],
-    integrations: [
       {
-        system: "Polícia",
-        type: "Recebimento de solicitações e envio de laudos",
+        name: "Arquivo de Amostras",
+        description: "Gestão de material biológico e evidências",
       },
-      { system: "Hospital", type: "Recebimento de corpos e transferências" },
-      { system: "POLITEC", type: "Compartilhamento de amostras para análise" },
-    ],
-    faqs: [
-      {
-        q: "Qual o fluxo para recebimento de corpos?",
-        a: "Hospital ou Polícia registra no sistema, IML recebe notificação, agenda a necropsia e atualiza o status.",
-      },
-      {
-        q: "Como emitir um laudo pericial?",
-        a: "Após conclusão da necropsia, preencha o formulário padronizado no sistema e submeta para revisão.",
-      },
-      {
-        q: "Quanto tempo ficam armazenadas as amostras?",
-        a: "Amostras são mantidas por no mínimo 20 anos conforme legislação vigente.",
-      },
-    ],
-  },
-  politec: {
-    overview:
-      "Perícia Técnica Científica especializada em análise de evidências, balística, documentoscopia e criminalística. Suporte técnico para investigações policiais.",
-    modules: [
       {
         name: "Análise de Evidências",
         description: "Processamento de materiais coletados",
       },
-      { name: "Balística", description: "Exames de armas e projéteis" },
-      { name: "Documentoscopia", description: "Análise de documentos" },
+      {
+        name: "Balística Forense",
+        description: "Exames de armas e projéteis",
+      },
+      {
+        name: "Documentoscopia",
+        description: "Análise de documentos e grafotecnia",
+      },
       {
         name: "DNA e Toxicologia",
         description: "Exames laboratoriais especializados",
@@ -167,13 +146,27 @@ const organDocs: Record<OrganType, any> = {
     ],
     integrations: [
       {
-        system: "Polícia",
-        type: "Recebimento de evidências e emissão de laudos",
+        system: "Polícia Civil",
+        type: "Recebimento de solicitações e envio de laudos",
       },
-      { system: "IML", type: "Análises complementares" },
-      { system: "Hospital", type: "Exames toxicológicos" },
+      {
+        system: "Hospital Regional",
+        type: "Recebimento de corpos, transferências e análises",
+      },
     ],
     faqs: [
+      {
+        q: "Qual o fluxo para recebimento de corpos?",
+        a: "Hospital ou Polícia registra no sistema, POLITEC recebe notificação, agenda a necropsia e atualiza o status.",
+      },
+      {
+        q: "Como emitir um laudo pericial?",
+        a: "Após conclusão do exame (necropsia ou análise técnica), preencha o formulário padronizado no sistema e submeta para revisão.",
+      },
+      {
+        q: "Quanto tempo ficam armazenadas as amostras?",
+        a: "Amostras são mantidas por no mínimo 20 anos conforme legislação vigente.",
+      },
       {
         q: "Como solicitar análise de evidências?",
         a: "A Polícia deve registrar a solicitação no sistema, especificando o tipo de análise necessária e anexando fotos.",

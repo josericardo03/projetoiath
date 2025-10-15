@@ -1,63 +1,73 @@
-import { Book, Search, Download, ExternalLink } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Badge } from './ui/badge';
-import { organs, type OrganType } from '../App';
-import { useState } from 'react';
+import { Book, Search, Download, ExternalLink } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Badge } from "./ui/badge";
+import { organs } from "../App";
+import { useState } from "react";
 
 interface DocumentationGeneralProps {
-  onNavigate: (view: 'dashboard' | 'docs-general' | 'docs-organ' | 'tickets') => void;
+  onNavigate: (
+    view: "dashboard" | "docs-general" | "docs-organ" | "tickets"
+  ) => void;
 }
 
-export default function DocumentationGeneral({ onNavigate }: DocumentationGeneralProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+export default function DocumentationGeneral({
+  onNavigate,
+}: DocumentationGeneralProps) {
+  const [searchTerm, setSearchTerm] = useState("");
 
   const sections = [
     {
-      title: 'Visão Geral do Sistema',
-      description: 'Arquitetura e objetivos do sistema integrado',
-      content: `Este sistema foi desenvolvido para integrar as operações de quatro secretarias essenciais: Polícia, Hospital, IML e POLITEC. O objetivo principal é facilitar o compartilhamento de informações, agilizar processos e melhorar a coordenação entre os órgãos.`,
-      tags: ['arquitetura', 'integração', 'visão geral'],
+      title: "Visão Geral do Sistema",
+      description: "Arquitetura e objetivos do sistema integrado",
+      content: `Este sistema foi desenvolvido para integrar as operações de três secretarias essenciais: Polícia Civil, Hospital Regional e POLITEC (Perícia Técnica Científica). O objetivo principal é facilitar o compartilhamento de informações, agilizar processos e melhorar a coordenação entre os órgãos.`,
+      tags: ["arquitetura", "integração", "visão geral"],
     },
     {
-      title: 'Fluxos de Integração',
-      description: 'Como as informações transitam entre as secretarias',
+      title: "Fluxos de Integração",
+      description: "Como as informações transitam entre as secretarias",
       content: `As integrações seguem protocolos de segurança rigorosos. Cada transferência de dados é registrada e auditável. Os principais fluxos incluem: transferência de pacientes, solicitações de perícia, compartilhamento de laudos técnicos e boletins de ocorrência.`,
-      tags: ['fluxo', 'dados', 'transferência'],
+      tags: ["fluxo", "dados", "transferência"],
     },
     {
-      title: 'Segurança e Privacidade',
-      description: 'Proteção de dados e conformidade',
+      title: "Segurança e Privacidade",
+      description: "Proteção de dados e conformidade",
       content: `Todos os dados são criptografados em trânsito e em repouso. O sistema está em conformidade com a LGPD e implementa controles de acesso baseados em função (RBAC). Logs de auditoria são mantidos por 7 anos.`,
-      tags: ['segurança', 'LGPD', 'privacidade'],
+      tags: ["segurança", "LGPD", "privacidade"],
     },
     {
-      title: 'Sistema de Tickets',
-      description: 'Gerenciamento de solicitações e suporte',
+      title: "Sistema de Tickets",
+      description: "Gerenciamento de solicitações e suporte",
       content: `O sistema de tickets permite que qualquer secretaria solicite informações, suporte técnico ou ações de outras secretarias. Tickets são categorizados por prioridade e tipo, com SLAs definidos para cada categoria.`,
-      tags: ['tickets', 'suporte', 'solicitações'],
+      tags: ["tickets", "suporte", "solicitações"],
     },
     {
-      title: 'Chatbots Inteligentes',
-      description: 'Assistentes virtuais por secretaria',
+      title: "Chatbots Inteligentes",
+      description: "Assistentes virtuais por secretaria",
       content: `Cada secretaria possui seu próprio chatbot treinado com informações específicas. Os chatbots podem responder perguntas frequentes, auxiliar na navegação do sistema e criar tickets automaticamente.`,
-      tags: ['chatbot', 'IA', 'assistente'],
+      tags: ["chatbot", "IA", "assistente"],
     },
     {
-      title: 'APIs e Webhooks',
-      description: 'Integração programática',
+      title: "APIs e Webhooks",
+      description: "Integração programática",
       content: `O sistema disponibiliza APIs RESTful para integração com sistemas legados. Webhooks podem ser configurados para notificações em tempo real de eventos importantes.`,
-      tags: ['API', 'webhook', 'integração'],
+      tags: ["API", "webhook", "integração"],
     },
   ];
 
   const quickLinks = [
-    { title: 'API Reference', icon: ExternalLink, url: '#' },
-    { title: 'Manual do Usuário', icon: Download, url: '#' },
-    { title: 'Guia de Início Rápido', icon: Book, url: '#' },
-    { title: 'Políticas de Segurança', icon: ExternalLink, url: '#' },
+    { title: "API Reference", icon: ExternalLink, url: "#" },
+    { title: "Manual do Usuário", icon: Download, url: "#" },
+    { title: "Guia de Início Rápido", icon: Book, url: "#" },
+    { title: "Políticas de Segurança", icon: ExternalLink, url: "#" },
   ];
 
   const filteredSections = sections.filter(
@@ -65,7 +75,9 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
       section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       section.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       section.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      section.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      section.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
+      )
   );
 
   return (
@@ -74,9 +86,11 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-slate-900">Documentação Geral</h1>
-          <p className="text-slate-600">Guias e informações sobre o sistema integrado</p>
+          <p className="text-slate-600">
+            Guias e informações sobre o sistema integrado
+          </p>
         </div>
-        <Button variant="outline" onClick={() => onNavigate('dashboard')}>
+        <Button variant="outline" onClick={() => onNavigate("dashboard")}>
           Voltar ao Dashboard
         </Button>
       </div>
@@ -106,11 +120,16 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
             {quickLinks.map((link, index) => {
               const Icon = link.icon;
               return (
-                <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card
+                  key={index}
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                >
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-3">
                       <Icon className="w-5 h-5 text-blue-600" />
-                      <span className="text-slate-900 text-sm">{link.title}</span>
+                      <span className="text-slate-900 text-sm">
+                        {link.title}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -143,7 +162,12 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
 
         <TabsContent value="integration" className="space-y-4 mt-6">
           {filteredSections
-            .filter((s) => s.tags.includes('integração') || s.tags.includes('fluxo') || s.tags.includes('API'))
+            .filter(
+              (s) =>
+                s.tags.includes("integração") ||
+                s.tags.includes("fluxo") ||
+                s.tags.includes("API")
+            )
             .map((section, index) => (
               <Card key={index}>
                 <CardHeader>
@@ -166,7 +190,12 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
 
         <TabsContent value="security" className="space-y-4 mt-6">
           {filteredSections
-            .filter((s) => s.tags.includes('segurança') || s.tags.includes('privacidade') || s.tags.includes('LGPD'))
+            .filter(
+              (s) =>
+                s.tags.includes("segurança") ||
+                s.tags.includes("privacidade") ||
+                s.tags.includes("LGPD")
+            )
             .map((section, index) => (
               <Card key={index}>
                 <CardHeader>
@@ -189,7 +218,12 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
 
         <TabsContent value="support" className="space-y-4 mt-6">
           {filteredSections
-            .filter((s) => s.tags.includes('suporte') || s.tags.includes('tickets') || s.tags.includes('chatbot'))
+            .filter(
+              (s) =>
+                s.tags.includes("suporte") ||
+                s.tags.includes("tickets") ||
+                s.tags.includes("chatbot")
+            )
             .map((section, index) => (
               <Card key={index}>
                 <CardHeader>
@@ -215,7 +249,9 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
       <Card>
         <CardHeader>
           <CardTitle>Documentação por Secretaria</CardTitle>
-          <CardDescription>Acesse a documentação específica de cada órgão</CardDescription>
+          <CardDescription>
+            Acesse a documentação específica de cada órgão
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -226,9 +262,11 @@ export default function DocumentationGeneral({ onNavigate }: DocumentationGenera
                   key={organ.id}
                   variant="outline"
                   className="h-auto py-4 flex flex-col items-center gap-2"
-                  onClick={() => onNavigate('docs-organ')}
+                  onClick={() => onNavigate("docs-organ")}
                 >
-                  <div className={`${organ.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
+                  <div
+                    className={`${organ.color} w-10 h-10 rounded-lg flex items-center justify-center`}
+                  >
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   <span>{organ.name}</span>
