@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   MapPin,
@@ -76,6 +76,11 @@ export default function TimelineCase({
   onNavigate,
   caseData,
 }: TimelineCaseProps) {
+  // Scroll automático para o topo quando a página carrega
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const [events, setEvents] = useState<TimelineEvent[]>([
     {
       id: "1",
@@ -628,6 +633,41 @@ export default function TimelineCase({
         </CardContent>
       </Card>
 
+      {/* Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Estatísticas da Timeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {events.filter((e) => e.status === "completed").length}
+              </div>
+              <div className="text-sm text-slate-600">Eventos Concluídos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {events.filter((e) => e.status === "in_progress").length}
+              </div>
+              <div className="text-sm text-slate-600">Em Andamento</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {events.filter((e) => e.status === "pending").length}
+              </div>
+              <div className="text-sm text-slate-600">Pendentes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-slate-600">
+                {events.length}
+              </div>
+              <div className="text-sm text-slate-600">Total de Eventos</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Timeline */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-900">
@@ -724,41 +764,6 @@ export default function TimelineCase({
           })}
         </div>
       </div>
-
-      {/* Statistics */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Estatísticas da Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {events.filter((e) => e.status === "completed").length}
-              </div>
-              <div className="text-sm text-slate-600">Eventos Concluídos</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {events.filter((e) => e.status === "in_progress").length}
-              </div>
-              <div className="text-sm text-slate-600">Em Andamento</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">
-                {events.filter((e) => e.status === "pending").length}
-              </div>
-              <div className="text-sm text-slate-600">Pendentes</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-slate-600">
-                {events.length}
-              </div>
-              <div className="text-sm text-slate-600">Total de Eventos</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
